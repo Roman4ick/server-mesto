@@ -1,7 +1,7 @@
 # server-mesto
 
 first server for the project
-example programm(R) version v1.0.0 15.10.2020
+example programm(R) version v1.0.2 15.10.2020
 
 server-mesto
 

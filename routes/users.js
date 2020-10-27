@@ -7,9 +7,8 @@ routerusers.get('/users', (req, res) => {
     .then((data) => {
       const dataUsers = JSON.parse(data);
       res.status(200).json(dataUsers);
-    })
-    .catch(() => {
-      res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
+    }).catch(() => {
+      res.status(500).json({ message: 'Запрашиваемый ресурс не найден' });
     });
 });
 
@@ -23,8 +22,6 @@ routerusers.get('/users/:id', (req, res) => {
       } else {
         res.send(user);
       }
-    }).catch(() => {
-      res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
     });
 });
 

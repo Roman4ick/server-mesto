@@ -8,7 +8,7 @@ routercard.get('/cards', (req, res) => {
       const dataCards = JSON.parse(data);
       res.status(200).json(dataCards);
     }).catch(() => {
-      res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
+      res.status(500).json({ message: 'Запрашиваемый ресурс не найден' });
     });
 });
 
