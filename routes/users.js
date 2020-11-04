@@ -1,28 +1,7 @@
 const routerusers = require('express').Router();
-const fs = require('fs').promises;
-const path = require('path');
+const { createUser, getUser, getUserId } = require('../controllers/users');
 
-routerusers.get('/users', (req, res) => {
-  fs.readFile(path.normalize('data/users.json'), 'utf8')
-    .then((data) => {
-      const dataUsers = JSON.parse(data);
-      res.status(200).json(dataUsers);
-    }).catch(() => {
-      res.status(500).json({ message: 'Запрашиваемый ресурс не найден' });
-    });
-});
-
-routerusers.get('/users/:id', (req, res) => {
-  fs.readFile(path.normalize('data/users.json'), 'utf8')
-    .then((data) => {
-      const dataUsers = JSON.parse(data);
-      const user = dataUsers.find((itemUsers) => itemUsers._id === req.params.id);
-      if (!user) {
-        res.status(404).json({ message: 'Нет пользователя с таким id' });
-      } else {
-        res.send(user);
-      }
-    });
-});
-
+routerusers.get('/users/:Id', getUserId);
+routerusers.get('/users', getUser);
+routerusers.post('/users', createUser);
 module.exports = routerusers;
