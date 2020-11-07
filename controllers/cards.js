@@ -14,14 +14,15 @@ module.exports.getCard = (req, res) => {
 };
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
+    .orFail(() => Error('Карточки нет в базе'))
     .then((data) => {
       if (!data) {
-        res.status(400).send({ message: 'Переданы некорректные данные' });
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(500).send({ message: 'Произошла ошибка' });
+    .catch(() => {
+      if (Error) {
+        res.status(404).send({ message: 'Карточки нет в базе' });
       }
     });
 };
