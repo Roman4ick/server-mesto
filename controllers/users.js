@@ -4,7 +4,7 @@ module.exports.getUser = (req, res) => {
   User.find({})
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
@@ -13,12 +13,12 @@ module.exports.getUser = (req, res) => {
 };
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.Id)
-    .orFail(() => Error('Пользователя нет в базе'))
+    .orFail(() => new Error('NotFound', 'Пользователя нет в базе'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else if (Error) {
+      } else if (err.name === 'NotFound') {
         res.status(404).send({ message: 'Пользователя нет в базе' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
@@ -30,7 +30,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });

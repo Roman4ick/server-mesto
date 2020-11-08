@@ -22,4 +22,7 @@ app.use((req, res, next) => {
   req.user = { _id: '5fa057e582bcf822fc0b65b2' };
   next();
 });
+app.use('/', (req, res) => {
+  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+});
 app.listen(PORT);
