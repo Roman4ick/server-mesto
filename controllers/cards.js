@@ -13,13 +13,13 @@ module.exports.getCard = (req, res) => {
     });
 };
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
-    .orFail(() => new Error('NotFound', 'Карточки нет в базе'))
+  Card.findByIdAndRemove(req.params.Id)
+    .orFail(new Error('NotValidId'))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else if (err.name === 'NotFound') {
-        res.status(404).send({ message: 'Карточки нет в базе' });
+      } else if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Такого пользователя нет в базе' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
       }

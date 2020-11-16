@@ -13,13 +13,13 @@ module.exports.getUser = (req, res) => {
 };
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.Id)
-    .orFail(() => new Error('NotFound', 'Пользователя нет в базе'))
+    .orFail(new Error('NotValidId'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
-      } else if (err.name === 'NotFound') {
-        res.status(404).send({ message: 'Пользователя нет в базе' });
+      } else if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Такого пользователя нет в базе' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
       }
