@@ -28,25 +28,32 @@ module.exports.getUserId = (req, res) => {
     });
 };
 module.exports.createUser = (req, res) => {
+  const pattern = new RegExp(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/);
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+  if (!pattern.test(password)) {
+    res.status(400).send({ message: 'Пароль должен быть от 8 символов!' });
+  }
   bcrypt.hash(req.body.password, 10)
-    .then((hash) => User.create({
-      email: req.body.email,
-      password: hash,
-      name: req.body.name,
-      about: req.body.about,
-      avatar: req.body.avatar,
-    }))
+    .then((hash) => {
+       return User.create({
+        email, password: hash, name, about, avatar,
+      });
+    })
     .then((user) => {
       res.status(201).send({
         _id: user._id,
-      })
-        .catch((err) => {
-          if (err.name === 'CastError') {
-            res.status(400).send({ message: 'Переданы некорректные данные' });
-          } else {
-            res.status(500).send({ message: 'Произошла ошибка' });
-          }
-        });
+      });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else if (err.name === 'MongoError' && err.code === 11000) {
+        res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован!' });
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
     });
 };
 module.exports.login = (req, res) => {
@@ -55,7 +62,7 @@ module.exports.login = (req, res) => {
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });
-      res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true });
+      res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true });
     })
     .catch((err) => {
       res.status(401).send({ message: err.message });

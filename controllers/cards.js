@@ -13,13 +13,24 @@ module.exports.getCard = (req, res) => {
     });
 };
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.Id)
+  const cardId = req.params._id;
+  Card.findOne(cardId)
     .orFail(new Error('NotValidId'))
+    .then((card) => {
+      if (card.owner._id.toString() !== req.user._id) {
+        res.status(403).send({ message: 'Недостаточно прав!' });
+      } else {
+        Card.findOneAndRemove(cardId)
+          .then((cards) => {
+            res.send({ data: cards });
+          });
+      }
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else if (err.message === 'NotValidId') {
-        res.status(404).send({ message: 'Такого пользователя нет в базе' });
+        res.status(404).send({ message: 'Такой карточки нет в базе' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
       }
