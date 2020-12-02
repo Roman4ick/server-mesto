@@ -36,18 +36,16 @@ module.exports.createUser = (req, res) => {
     res.status(400).send({ message: 'Пароль должен быть от 8 символов!' });
   }
   bcrypt.hash(req.body.password, 10)
-    .then((hash) => {
-       return User.create({
-        email, password: hash, name, about, avatar,
-      });
-    })
+    .then((hash) => User.create({
+      email, password: hash, name, about, avatar,
+    }))
     .then((user) => {
       res.status(201).send({
         _id: user._id,
       });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные' });
       } else if (err.name === 'MongoError' && err.code === 11000) {
         res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован!' });

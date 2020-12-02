@@ -7,7 +7,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    index: true,
     validate: {
       validator: validator.isEmail,
       message: 'Введите корректный Email адрес',
