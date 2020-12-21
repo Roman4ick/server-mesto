@@ -20,28 +20,19 @@ module.exports.getUser = (req, res, next) => {
 };
 module.exports.getUserId = (req, res, next) => {
   User.findById(req.params.Id)
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Такого пользователя нет в базе'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else if (err.message === 'NotValidId') {
-        next(new NotFoundError('Такого пользователя нет в базе'));
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
       }
     })
     .catch(next);
 };
 module.exports.createUser = (req, res, next) => {
-  const pattern = new RegExp(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/);
   const {
-    email, password, name, about, avatar,
+    email, name, about, avatar,
   } = req.body;
-  if (!pattern.test(password)) {
-    next(new BadRequestError('Переданы некорректные данные'));
-    return;
-  }
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       email, password: hash, name, about, avatar,
@@ -56,8 +47,6 @@ module.exports.createUser = (req, res, next) => {
         next(new BadRequestError('Переданы некорректные данные'));
       } else if (err.name === 'MongoError' && err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже зарегистрирован!'));
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
       }
     })
     .catch(next);

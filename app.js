@@ -11,6 +11,7 @@ const routerusers = require('./routes/users');
 const { login, createUser } = require('./controllers/users.js');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/loggers');
+const NotFoundError = require('./errors/not-found-err');
 require('dotenv').config();
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -38,7 +39,7 @@ app.post('/signin', celebrate({
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required().regex(/[a-zA-Z0-9]{3,30}/).min(8),
     name: Joi.string().required().min(2).max(30),
     avatar: Joi.string().required().regex(/^((http|https|ftp):\/\/)?(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)/i),
     about: Joi.string().min(2).max(30),
@@ -47,8 +48,8 @@ app.post('/signup', celebrate({
 app.use(auth);
 app.use(routercard);
 app.use(routerusers);
-app.use('/', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
+app.use('/', () => {
+  throw new NotFoundError('Запрашиваемый ресурс не найден!');
 });
 app.use(errorLogger);
 app.use(errors());

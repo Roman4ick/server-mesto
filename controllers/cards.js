@@ -9,9 +9,7 @@ module.exports.getCard = (req, res, next) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        next(new BadRequestError('Переданы некорректные данные'));
       }
     })
     .catch(next);
@@ -19,7 +17,7 @@ module.exports.getCard = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   const cardId = req.params._id;
   Card.findOne(cardId)
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Такой карточки нет в базе'))
     .then((card) => {
       if (card.owner._id.toString() !== req.user._id) {
         throw new ForbiddenError('Недостаточно прав!');
@@ -32,11 +30,7 @@ module.exports.deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные');
-      } else if (err.message === 'NotValidId') {
-        next(new NotFoundError('Такой карточки нет в базе'));
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        next(new BadRequestError('Переданы некорректные данные'));
       }
     })
     .catch(next);
@@ -48,8 +42,6 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
       }
     })
     .catch(next);

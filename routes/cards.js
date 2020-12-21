@@ -1,8 +1,13 @@
 const { celebrate, Joi } = require('celebrate');
+Joi.objectId = require('joi-objectid')(Joi);
 const routercard = require('express').Router();
 const { getCard, deleteCard, createCard } = require('../controllers/cards');
 
-routercard.get('/cards', getCard);
+routercard.get('/cards', celebrate({
+  headers: Joi.object().keys({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), getCard);
 routercard.delete('/cards/:Id', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().hex().length(24),

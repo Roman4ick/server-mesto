@@ -1,4 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
+Joi.objectId = require('joi-objectid')(Joi);
 const routerusers = require('express').Router();
 const { getUser, getUserId } = require('../controllers/users');
 
@@ -10,6 +11,10 @@ routerusers.get('/users/:Id', celebrate({
     authorization: Joi.string().required(),
   }).unknown(true),
 }), getUserId);
-routerusers.get('/users', getUser);
+routerusers.get('/users', celebrate({
+  headers: Joi.object().keys({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), getUser);
 
 module.exports = routerusers;
