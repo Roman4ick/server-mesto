@@ -5,17 +5,15 @@ const { JWT_SECRET = 'dev-key' } = process.env;
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new AuthIdenError('Необходима авторизация');
-  }
-  const token = authorization.replace('Bearer ', '');
-  let payload;
   try {
-    payload = jwt.verify(token, JWT_SECRET);
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+      throw new AuthIdenError('Необходима авторизация');
+    }
+    const token = authorization.replace('Bearer ', '');
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload;
+    next();
   } catch (err) {
-    throw new AuthIdenError('Необходима авторизация');
+    next(new AuthIdenError('Необходима авторизация'));
   }
-  req.user = payload;
-  next()
-    .catch(next);
 };

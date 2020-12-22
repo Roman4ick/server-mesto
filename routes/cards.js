@@ -10,7 +10,7 @@ routercard.get('/cards', celebrate({
 }), getCard);
 routercard.delete('/cards/:Id', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().hex().length(24),
+    Id: Joi.objectId().hex().length(24),
   }),
   headers: Joi.object().keys({
     authorization: Joi.string().required(),
