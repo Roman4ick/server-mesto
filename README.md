@@ -8,7 +8,7 @@ server-mesto
 Used Html, css, javascript, webpack, some node.js, express, as well as the npm package manager.
 
 [Мой проект] https://github.com/Roman4ick/server-mesto.git
-Публичный IP-адрес сервера: 84.201.170.177
+Публичный IP-адрес сервера: roman4ick@84.201.170.177
 
 Доменное имя: 
 roman4ick.suv.students.nomoreparties.space
