@@ -1,15 +1,26 @@
+const { celebrate, Joi } = require('celebrate');
+Joi.objectId = require('joi-objectid')(Joi);
 const routercard = require('express').Router();
-const fs = require('fs').promises;
-const path = require('path');
+const { getCard, deleteCard, createCard } = require('../controllers/cards');
 
-routercard.get('/cards', (req, res) => {
-  fs.readFile(path.normalize('data/cards.json'), 'utf8')
-    .then((data) => {
-      const dataCards = JSON.parse(data);
-      res.status(200).json(dataCards);
-    }).catch(() => {
-      res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
-    });
-});
-
+routercard.get('/cards', celebrate({
+  headers: Joi.object().keys({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), getCard);
+routercard.delete('/cards/:Id', celebrate({
+  params: Joi.object().keys({
+    Id: Joi.objectId().hex().length(24),
+  }),
+  headers: Joi.object().keys({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), deleteCard);
+routercard.post('/cards', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().regex(/^((http|https|ftp):\/\/)?(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)/i),
+  }),
+}), createCard);
 module.exports = routercard;
+

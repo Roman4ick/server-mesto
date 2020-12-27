@@ -1,31 +1,20 @@
+const { celebrate, Joi } = require('celebrate');
+Joi.objectId = require('joi-objectid')(Joi);
 const routerusers = require('express').Router();
-const fs = require('fs').promises;
-const path = require('path');
+const { getUser, getUserId } = require('../controllers/users');
 
-routerusers.get('/users', (req, res) => {
-  fs.readFile(path.normalize('data/users.json'), 'utf8')
-    .then((data) => {
-      const dataUsers = JSON.parse(data);
-      res.status(200).json(dataUsers);
-    })
-    .catch(() => {
-      res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
-    });
-});
-
-routerusers.get('/users/:id', (req, res) => {
-  fs.readFile(path.normalize('data/users.json'), 'utf8')
-    .then((data) => {
-      const dataUsers = JSON.parse(data);
-      const user = dataUsers.find((itemUsers) => itemUsers._id === req.params.id);
-      if (!user) {
-        res.status(404).json({ message: 'Нет пользователя с таким id' });
-      } else {
-        res.send(user);
-      }
-    }).catch(() => {
-      res.status(404).json({ message: 'Запрашиваемый ресурс не найден' });
-    });
-});
+routerusers.get('/users/:Id', celebrate({
+  params: Joi.object().keys({
+    Id: Joi.objectId().hex().length(24),
+  }),
+  headers: Joi.object().keys({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), getUserId);
+routerusers.get('/users', celebrate({
+  headers: Joi.object().keys({
+    authorization: Joi.string().required(),
+  }).unknown(true),
+}), getUser);
 
 module.exports = routerusers;
